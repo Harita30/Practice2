@@ -1,47 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  //quote display
-  //button
-  //quote array containing quote and id
-  //function to update quote id based on user input
-  /*const quot = [
-    { id: 1, text: "abc" },
-    { id: 2, text: "def" },
-  ];*/
-  const [quot, setQout] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [error, setError] = useState(true);
+  const [quot, setQout] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchquotes = async () => {
-      try {
-        const response = await fetch("https://api.quotable.io/quotes?limit=10");
-        if (!response.ok) throw new Error("Failed to fetch quotes");
+  const fetchquotes = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("https://api.adviceslip.com/advice");
+      if (!response.ok) throw new Error("Failed to fetch quotes");
 
-        const data = await response.json;
-        setQout(data.results);
-      } catch (err) {
-        setError(err.data);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const data = await response.json();
+      console.log("Fetched Data:", data);
+
+      setQout(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchquotes();
   }, []);
 
-  const upd = () => setIndex((index + 1) % quot.length);
-
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
   return (
     <div>
-      <h1>Quote of the day</h1>
-      {quot.length > 0 && <p>{quot[index].content}</p>}
-      <button onClick={upd}>New Quote</button>
+      <h1>Quote of the Day</h1>
+      {quot && <p>{quot.slip?.advice}</p>}
+      <button onClick={fetchquotes}>New Quote</button>
     </div>
   );
 }
+
 export default App;
